@@ -1000,7 +1000,6 @@ function renderPracticePlayer(animateRun=false){
           <div class="player-tw"><h2 class="player-title">${esc(song.title)}</h2><p class="player-artist">${esc(song.artist)}</p></div>
         </div>
         <div class="player-pills">
-          <span class="pill ${pc(song.difficulty)}">${cap(song.difficulty)}</span>
           <span class="pill ${pc(s)}">${slabel(s)}</span>
           ${runs.today>0?`<span class="pill p-runs">${runs.today}× today · ${runs.total} total</span>`:''}
           ${rating>0?`<span class="pill p-stars">${starStr(rating)}</span>`:''}
