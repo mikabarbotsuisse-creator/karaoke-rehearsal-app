@@ -184,6 +184,10 @@ button:active,.lnk:active{transform:scale(.96)!important}
 .p-runs       {background:rgba(255,255,255,.06);color:rgba(255,255,255,.4)}
 /* Star rating pill on cards — prominent */
 .p-stars{background:var(--star-bg);color:var(--star);border-color:var(--star-border);letter-spacing:.12em;font-size:.85rem;padding:.25rem .8rem}
+.card-stars{display:inline-flex;align-items:center;gap:.14rem;padding:.18rem .44rem;border-radius:var(--rp);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.card-star-btn{appearance:none;background:none;border:none;padding:.04rem;font-size:1rem;line-height:1;color:rgba(255,255,255,.16);cursor:pointer;transition:color .15s ease,transform .18s var(--ease)}
+.card-star-btn:hover{transform:scale(1.18)}
+.card-star-btn.on{color:var(--star)}
 
 /* NOTES */
 .notes-box{padding:.85rem .95rem;border-radius:var(--rs);background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.06);cursor:text;transition:border-color var(--t),box-shadow var(--t),background var(--t)}
@@ -836,8 +840,7 @@ function renderSongs(){
     const s=getSongStatus(song),lnk=getLinks(song),runs=getRuns(song.number),lastInfo=getLastInfo(song.number),due=isDue(song),rating=getRating(song.number),mindsetLock=isMindsetLocked(song);
     const lastTag=lastInfo?`<span class="last-tag${lastInfo.overdue?' overdue':''}">${lastInfo.overdue?'⚠ ':' · '}${lastInfo.label}</span>`:'';
     const runsPill=runs.today>0?`<span class="pill p-runs">${runs.today}× today</span>`:'';
-    // ★ Star pill — visible on card when rated
-    const starPill=rating>0?`<span class="pill p-stars" title="${MASTERY_LABELS[rating]}">${starStr(rating)}</span>`:'';
+    const cardStars=`<div class="card-stars" aria-label="Rate ${esc(song.title)}">${[1,2,3,4,5].map(n=>`<button class="card-star-btn${rating>=n?' on':''}" type="button" data-card-rate-song="${song.number}" data-card-rate="${n}" title="${MASTERY_LABELS[n]}">★</button>`).join('')}</div>`;
     const mindsetLockBlock=mindsetLock?`<div class="mindset-lock-wrap"><div class="mindset-lock-badge">Mindset Lock</div><div class="mindset-lock-sub">Ready • Rehearsed • 4★+</div></div>`:'';
     parts.push(`
       <article class="song-card" style="--i:${i}" data-open-song="${song.number}" data-s="${s}" data-lock="${mindsetLock}">
@@ -853,7 +856,7 @@ function renderSongs(){
         ${mindsetLockBlock}
         <div class="pills-row">
           <span class="pill ${pc(s)}">${slabel(s)}</span>
-          ${runsPill}${starPill}
+          ${runsPill}${cardStars}
         </div>
         <div class="rehearsed-row">${rehearsedBtnHTML(song.number)}</div>
         ${notesBoxHTML(song)}
@@ -974,6 +977,13 @@ shuffleBtn.addEventListener('click',()=>{
 energyArcEl.addEventListener('click',e=>{const bar=e.target.closest('[data-open-song]');if(bar)openPractice(Number(bar.dataset.openSong))});
 songsGrid.addEventListener('click',e=>{
   if(e.target.closest('[contenteditable="true"]'))return;
+  const cardStar=e.target.closest('[data-card-rate]');
+  if(cardStar){
+    e.preventDefault();
+    e.stopPropagation();
+    setRating(Number(cardStar.dataset.cardRateSong),Number(cardStar.dataset.cardRate));
+    return;
+  }
   const rehearseBtn=e.target.closest('[data-toggle-rehearsed]');if(rehearseBtn){toggleRehearsed(Number(rehearseBtn.dataset.toggleRehearsed));return}
   const sb=e.target.closest('.sbtn');if(sb){setSongStatus(Number(sb.dataset.songNumber),sb.dataset.status);return}
   if(e.target.closest('a,button,input,label'))return;
