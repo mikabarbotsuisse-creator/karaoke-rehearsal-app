@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage · Karaoke Setlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0d11; --bg2:#111118; --card:#16161c; --card2:#1e1e26;
+  --border:rgba(255,255,255,.058); --border2:rgba(255,255,255,.10);
+  --text:rgba(255,248,240,.92); --muted:rgba(255,235,215,.44); --faint:rgba(255,235,215,.22);
+  --ready-bg:rgba(32,75,48,.45);  --ready-text:#6ec888; --ready-acc:#4db870;
+  --work-bg:rgba(82,54,14,.45);   --work-text:#d49050;  --work-acc:#c88030;
+  --idle-bg:rgba(52,42,82,.45);   --idle-text:#9888cc;  --idle-acc:#7868b0;
+  --easy-bg:rgba(32,68,26,.45);   --easy-text:#6ec060;
+  --med-bg:rgba(70,50,16,.45);    --med-text:#c09040;
+  --hard-bg:rgba(72,22,26,.45);   --hard-text:#c85060;
+  --star:#e8b850; --star-bg:rgba(232,184,80,.14); --star-border:rgba(232,184,80,.22);
+  --sh1:0 1px 4px rgba(0,0,0,.45),0 4px 20px rgba(0,0,0,.28);
+  --sh2:0 6px 28px rgba(0,0,0,.55),0 1px 6px rgba(0,0,0,.35);
+  --sh3:0 18px 55px rgba(0,0,0,.65),0 4px 12px rgba(0,0,0,.45);
+  --ease:cubic-bezier(.25,.46,.45,.94); --t:.22s var(--ease); --ts:.40s var(--ease);
+  --r:20px; --rs:13px; --rp:999px;
+  --fd:'Fraunces',Georgia,serif; --fb:'Inter',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;font-family:var(--fb);font-size:15px;color:var(--text);background:var(--bg);
+  background-image:radial-gradient(ellipse at 14% 0%,rgba(55,42,88,.22) 0%,transparent 46%),
+    radial-gradient(ellipse at 86% 0%,rgba(30,55,80,.16) 0%,transparent 44%),
+    radial-gradient(ellipse at 50% 100%,rgba(50,38,18,.10) 0%,transparent 50%);
+  background-attachment:fixed}
+
+@keyframes fadeUp   {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+@keyframes scaleIn  {from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes pop      {0%,100%{transform:scale(1)}40%{transform:scale(1.07)}}
+@keyframes glow     {0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes runBounce{0%{transform:scale(1)}28%{transform:scale(1.13)}60%{transform:scale(.97)}100%{transform:scale(1)}}
+@keyframes starIn   {from{transform:scale(.5) rotate(-25deg)}to{transform:scale(1) rotate(0)}}
+
+.page{width:min(1180px,100% - 2rem);margin:0 auto;padding:1.5rem 0 4rem}
+
+/* HERO */
+.hero{position:relative;padding:2.5rem 0 0;animation:fadeIn .5s ease both}
+.hero-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.038),rgba(255,255,255,.010));border:1px solid var(--border);border-radius:28px;box-shadow:var(--sh2);backdrop-filter:blur(22px)}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr minmax(240px,310px);gap:1.5rem;padding:2rem 2rem 1.5rem;align-items:start}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.38rem .9rem;border-radius:var(--rp);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--ready-acc);animation:glow 2.4s ease infinite}
+h1{margin:.85rem 0 .55rem;font-family:var(--fd);font-size:clamp(2.1rem,4.5vw,3.5rem);font-weight:600;line-height:1.05;letter-spacing:-.025em;color:rgba(255,248,235,.96)}
+.hero-sub{margin:0;color:var(--muted);font-size:.95rem;line-height:1.65;max-width:48ch}
+.hero-actions{display:flex;gap:.75rem;margin-top:1.2rem;flex-wrap:wrap}
+
+/* SESSION BAR */
+.session-bar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:1.1rem;padding:.8rem 1.1rem;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--border)}
+.session-item{display:flex;align-items:center;gap:.6rem}
+.session-icon{font-size:1.1rem;line-height:1}
+.timer-disp{font-family:var(--fd);font-size:1.55rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1;min-width:4.2rem;transition:color .5s ease}
+.timer-disp.warn{color:#d49050}.timer-disp.danger{color:#c85060}
+.session-val{font-family:var(--fd);font-size:1.35rem;font-weight:600;color:var(--text);line-height:1}
+.session-sub{font-size:.72rem;color:var(--faint);font-weight:500;margin-top:.1rem}
+.sdiv{width:1px;height:28px;background:rgba(255,255,255,.08);flex-shrink:0}
+.break-alert{display:none;align-items:center;gap:.45rem;padding:.38rem .8rem;border-radius:var(--rp);background:rgba(200,128,48,.12);border:1px solid rgba(200,128,48,.25);color:var(--work-text);font-size:.8rem;font-weight:600;animation:fadeIn .4s ease}
+.session-controls{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-left:auto}
+.session-btn{min-height:34px;padding:.42rem .82rem;background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.08);color:var(--muted);font-size:.8rem}
+.session-btn:hover:not([disabled]){background:rgba(255,255,255,.11);color:var(--text);transform:translateY(-1px);box-shadow:var(--sh1)}
+.session-btn[disabled]{opacity:.35;cursor:not-allowed;transform:none!important}
+
+/* ENERGY ARC */
+.arc-wrap{position:relative;z-index:1;display:flex;align-items:center;gap:.75rem;padding:.7rem 2rem 1.5rem}
+.arc-label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);flex-shrink:0}
+.arc-strip{flex:1;display:flex;gap:2px;align-items:flex-end;height:26px}
+.arc-bar{flex:1;border-radius:3px 3px 0 0;min-width:3px;cursor:pointer;opacity:.65;transition:opacity .15s ease,transform .15s ease}
+.arc-bar:hover{opacity:1;transform:scaleY(1.25);transform-origin:bottom}
+body.pm .arc-wrap{display:none}
+
+/* PROGRESS PANEL */
+.progress-panel{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:22px;padding:1.25rem;box-shadow:var(--sh1);backdrop-filter:blur(10px)}
+.panel-label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem}
+.bar-wrap{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:1rem}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ready-acc),#3aaa58);transition:width .7s var(--ease)}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.stat{border-radius:var(--rs);padding:.8rem .65rem;text-align:center;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.stat strong{display:block;font-family:var(--fd);font-size:1.55rem;font-weight:600;color:var(--text);line-height:1;margin-bottom:.2rem}
+.stat span{color:var(--faint);font-size:.78rem}
+.edit-tip{margin-top:.9rem;padding-top:.85rem;border-top:1px dashed rgba(255,255,255,.06);color:var(--faint);font-size:.8rem;line-height:1.55}
+.practice-panel{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.06)}
+.practice-panel-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.85rem}
+.practice-panel .panel-label{margin:0}
+.practice-badge{display:inline-flex;align-items:center;gap:.38rem;padding:.3rem .68rem;border-radius:var(--rp);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.practice-stat{padding:.78rem .82rem;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.practice-stat span{display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:.38rem}
+.practice-stat strong{display:block;font-family:var(--fd);font-size:1.18rem;font-weight:600;color:var(--text);line-height:1.1}
+.practice-stat.full{grid-column:1/-1}
+.practice-history{margin-top:.85rem;padding-top:.85rem;border-top:1px dashed rgba(255,255,255,.06)}
+.practice-history-title{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.practice-history-list{display:grid;gap:.38rem}
+.practice-history-item{display:flex;justify-content:space-between;gap:.8rem;font-size:.83rem;color:rgba(255,240,220,.8)}
+.practice-history-item span:last-child{color:var(--muted)}
+
+/* TOOLBAR */
+.toolbar{position:sticky;top:.75rem;z-index:30;margin-top:1.2rem;padding:.8rem 1rem;border-radius:22px;background:rgba(13,13,17,.92);border:1px solid rgba(255,255,255,.07);box-shadow:0 8px 32px rgba(0,0,0,.5);backdrop-filter:blur(22px)}
+.toolbar-row{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.search-wrap{flex:1 1 260px;position:relative}
+.s-icon{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);pointer-events:none}
+.search-input{width:100%;min-height:46px;padding:.72rem 1rem .72rem 2.65rem;border:1px solid rgba(255,255,255,.09);border-radius:var(--rp);background:rgba(255,255,255,.055);color:var(--text);font-family:var(--fb);font-size:.92rem;outline:none;-webkit-appearance:none;transition:border-color var(--t),box-shadow var(--t)}
+.search-input::placeholder{color:var(--faint)}
+.search-input:focus{border-color:var(--idle-acc);box-shadow:0 0 0 3px rgba(120,104,176,.18)}
+.filter-group{display:flex;gap:.48rem;flex-wrap:wrap}
+.filter-sep{width:1px;height:24px;background:rgba(255,255,255,.08);align-self:center;flex-shrink:0}
+
+/* BUTTONS */
+button,.lnk{appearance:none;border:1px solid transparent;border-radius:var(--rp);font-family:var(--fb);font-size:.87rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;transition:background var(--t),border-color var(--t),box-shadow var(--t),transform var(--t),color var(--t)}
+button:active,.lnk:active{transform:scale(.96)!important}
+.fbtn{min-height:40px;padding:.52rem .95rem;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:var(--muted)}
+.fbtn:hover{background:rgba(255,255,255,.10);transform:translateY(-1px);box-shadow:var(--sh1)}
+.fbtn.active{background:rgba(120,104,176,.25);border-color:rgba(120,104,176,.35);color:rgba(255,255,255,.88);box-shadow:0 4px 16px rgba(120,104,176,.14)}
+.fbtn[data-filter="due"].active{background:rgba(200,128,48,.22);border-color:rgba(200,128,48,.32);color:var(--work-text)}
+/* Star filter buttons */
+.fbtn[data-filter^="stars-"]{padding:.52rem .7rem;letter-spacing:.08em;font-size:.85rem}
+.fbtn[data-filter^="stars-"].active{background:var(--star-bg);border-color:var(--star-border);color:var(--star);box-shadow:0 4px 16px rgba(232,184,80,.12)}
+.mbtn{min-height:44px;padding:.62rem 1.3rem;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.55);font-size:.9rem;font-weight:500;box-shadow:var(--sh1)}
+.mbtn:hover{transform:translateY(-2px);box-shadow:var(--sh2);background:rgba(255,255,255,.11);color:rgba(255,255,255,.8)}
+.mbtn.active{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.92);box-shadow:var(--sh2)}
+.mbtn.shuf-on{background:rgba(120,104,176,.22);border-color:rgba(120,104,176,.32);color:var(--idle-text)}
+
+/* RESULTS */
+.results-row{display:flex;justify-content:space-between;align-items:center;margin:1rem 0 .85rem;color:var(--faint);font-size:.86rem}
+
+/* GRID */
+.songs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:1rem}
+
+/* SONG CARD */
+.song-card{position:relative;display:flex;flex-direction:column;gap:.85rem;padding:1.3rem;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh1);cursor:pointer;overflow:hidden;animation:fadeUp .46s var(--ease) both;animation-delay:calc(var(--i,0)*.038s);transition:box-shadow var(--t),transform var(--t),border-color var(--t)}
+.song-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;transition:background var(--ts)}
+.song-card:hover{transform:translateY(-4px);box-shadow:var(--sh3);border-color:var(--border2)}
+.song-card[data-s="ready"]     {background:linear-gradient(150deg,rgba(32,75,48,.2),var(--card) 55%)}
+.song-card[data-s="to work"]   {background:linear-gradient(150deg,rgba(82,54,14,.2),var(--card) 55%)}
+.song-card[data-s="not worked"]{background:linear-gradient(150deg,rgba(52,42,82,.2),var(--card) 55%)}
+.song-card[data-s="ready"]::before     {background:linear-gradient(90deg,var(--ready-acc),transparent 65%);opacity:.7}
+.song-card[data-s="to work"]::before   {background:linear-gradient(90deg,var(--work-acc), transparent 65%);opacity:.7}
+.song-card[data-s="not worked"]::before{background:linear-gradient(90deg,var(--idle-acc), transparent 65%);opacity:.7}
+.due-badge{position:absolute;top:.6rem;right:.75rem;font-size:.8rem;opacity:.55;pointer-events:none}
+
+.song-top{display:flex;gap:.85rem;align-items:flex-start}
+.song-num{flex:0 0 46px;height:46px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,rgba(50,80,110,.45),rgba(90,68,44,.38));font-family:var(--fd);font-size:1rem;font-weight:600;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.07)}
+.song-head{min-width:0}
+.song-title {margin:0;font-family:var(--fd);font-size:1.32rem;font-weight:600;line-height:1.15;letter-spacing:-.015em;overflow-wrap:anywhere;color:rgba(255,248,235,.94)}
+.song-meta  {display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-top:.28rem}
+.song-artist{color:var(--muted);font-size:.88rem}
+.last-tag   {font-size:.74rem;color:var(--faint)}
+.last-tag.overdue{color:var(--work-text);font-weight:600}
+
+/* PILLS */
+.pills-row{display:flex;flex-wrap:wrap;gap:.42rem}
+.pill{display:inline-flex;align-items:center;min-height:26px;padding:.25rem .72rem;border-radius:var(--rp);font-size:.78rem;font-weight:600;letter-spacing:.02em;border:1px solid transparent}
+.p-easy  {background:var(--easy-bg);color:var(--easy-text);border-color:rgba(80,140,60,.18)}
+.p-medium{background:var(--med-bg); color:var(--med-text); border-color:rgba(140,105,30,.18)}
+.p-hard  {background:var(--hard-bg);color:var(--hard-text);border-color:rgba(160,50,65,.18)}
+.p-ready      {background:var(--ready-bg);color:var(--ready-text);border-color:rgba(77,184,112,.18)}
+.p-to-work    {background:var(--work-bg); color:var(--work-text); border-color:rgba(200,128,48,.18)}
+.p-not-worked {background:var(--idle-bg); color:var(--idle-text); border-color:rgba(120,104,176,.18)}
+.p-runs       {background:rgba(255,255,255,.06);color:rgba(255,255,255,.4)}
+/* Star rating pill on cards — prominent */
+.p-stars{background:var(--star-bg);color:var(--star);border-color:var(--star-border);letter-spacing:.12em;font-size:.85rem;padding:.25rem .8rem}
+
+/* NOTES */
+.notes-box{padding:.85rem .95rem;border-radius:var(--rs);background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.06);cursor:text;transition:border-color var(--t),box-shadow var(--t),background var(--t)}
+.notes-box:hover .edit-hint{opacity:1}
+.notes-box:focus-within{border-color:rgba(120,104,176,.45);box-shadow:0 0 0 3px rgba(120,104,176,.10);background:rgba(255,255,255,.052)}
+.notes-lbl {display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem;user-select:none}
+.edit-hint {font-size:.7rem;font-weight:400;text-transform:none;letter-spacing:0;opacity:0;transition:opacity var(--t);color:var(--idle-acc)}
+.notes-txt {color:rgba(255,240,220,.82);font-size:.88rem;line-height:1.68;outline:none;min-height:1.4em;word-break:break-word}
+.notes-txt[contenteditable="true"]{caret-color:var(--idle-acc)}
+.notes-txt[data-ph="true"]::before{content:attr(data-placeholder);color:rgba(255,255,255,.18);font-style:italic;pointer-events:none}
+@media(max-width:640px){.notes-txt{font-size:16px}}
+
+/* LINKS */
+.links-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+.lnk{min-height:40px;padding:.58rem .8rem;font-size:.84rem;font-weight:600}
+.lnk:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
+.lnk.yt{background:rgba(180,55,38,.2); color:rgba(240,155,140,.9);border-color:rgba(180,55,38,.22)}
+.lnk.kr{background:rgba(45,90,160,.2); color:rgba(130,180,235,.9);border-color:rgba(45,90,160,.22)}
+.lnk.sp{background:rgba(35,125,55,.2); color:rgba(110,200,130,.9);border-color:rgba(35,125,55,.22)}
+.lnk.ly{background:rgba(85,55,155,.2); color:rgba(155,135,225,.9);border-color:rgba(85,55,155,.22)}
+.lnk.embed-on{border-color:rgba(120,104,176,.5);box-shadow:0 0 0 2px rgba(120,104,176,.15)}
+
+/* STATUS */
+.status-lbl{display:block;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:.5rem}
+.status-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:.48rem}
+.sbtn{min-height:38px;padding:.52rem .55rem;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.07);color:var(--muted);font-size:.8rem}
+.sbtn:hover{background:rgba(255,255,255,.09);transform:translateY(-1px)}
+.sbtn.active{border-color:transparent;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:pop .28s ease;color:var(--text)}
+.sbtn[data-status="not worked"].active{background:var(--idle-bg);color:var(--idle-text);border-color:rgba(120,104,176,.2)}
+.sbtn[data-status="to work"].active   {background:var(--work-bg); color:var(--work-text); border-color:rgba(200,128,48,.2)}
+.sbtn[data-status="ready"].active     {background:var(--ready-bg);color:var(--ready-text);border-color:rgba(77,184,112,.2)}
+.rehearsed-row{display:flex;align-items:center;justify-content:flex-start}
+.rehearse-btn{min-height:34px;padding:.46rem .82rem;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.07);color:var(--muted);font-size:.8rem;gap:.45rem}
+.rehearse-btn:hover{background:rgba(255,255,255,.09);transform:translateY(-1px)}
+.rehearse-btn.active{background:rgba(77,184,112,.16);border-color:rgba(77,184,112,.26);color:var(--ready-text);box-shadow:0 6px 18px rgba(77,184,112,.12)}
+.rehearse-btn.flash{animation:pop .28s ease}
+.rehearse-check{font-size:.9rem;line-height:1}
+.player-rehearsed{margin-bottom:1.25rem}
+.player-rehearsed .rehearse-btn{min-height:42px;padding:.6rem 1rem;font-size:.9rem}
+
+/* PAUSE */
+.pause-div{grid-column:1/-1;display:flex;align-items:center;gap:1rem;color:var(--faint);padding:.2rem}
+.pause-div::before,.pause-div::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+.pause-chip{padding:.42rem 1rem;border-radius:var(--rp);background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:.8rem;color:var(--faint)}
+
+/* EMPTY */
+.empty-state{grid-column:1/-1;padding:3rem 1rem;text-align:center;color:var(--muted);animation:fadeIn .3s ease}
+
+/* TOAST */
+#g-toast{position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem .75rem 1.25rem;border-radius:var(--rp);background:rgba(22,22,28,.97);color:rgba(255,248,235,.88);font-size:.86rem;font-weight:500;white-space:nowrap;box-shadow:0 8px 36px rgba(0,0,0,.6);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);z-index:200;transition:bottom .32s var(--ease),opacity .32s ease;opacity:0}
+#g-toast.show{bottom:2rem;opacity:1}
+#g-toast .t-undo{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.88);border-radius:var(--rp);padding:.3rem .8rem;font-size:.8rem;font-family:var(--fb);font-weight:500;cursor:pointer}
+#g-toast .t-undo:hover{background:rgba(255,255,255,.18);transform:none}
+
+/* EMBED PLAYER */
+.embed-panel{margin-bottom:1.4rem;animation:fadeUp .3s var(--ease)}
+.embed-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.embed-platform{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.embed-close-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-family:var(--fb);font-size:.78rem;padding:.25rem .7rem;border-radius:var(--rp);cursor:pointer;transition:background var(--t),color var(--t)}
+.embed-close-btn:hover{background:rgba(255,255,255,.11);color:var(--text);transform:none}
+.embed-yt{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000;border:1px solid rgba(255,255,255,.06)}
+.embed-yt iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.embed-sp iframe{width:100%;height:152px;border:none;border-radius:14px;display:block}
+.embed-no-url{padding:.85rem 1rem;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:.84rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.embed-no-url a{color:var(--idle-acc);text-decoration:none;font-weight:600;white-space:nowrap}
+.embed-fallback{margin-top:.7rem;padding:.85rem 1rem;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.embed-fallback-note{margin:0 0 .65rem;color:var(--muted);font-size:.82rem;line-height:1.55}
+.embed-fallback .lnk{min-height:36px;padding:.5rem .8rem;font-size:.82rem}
+
+/* PRACTICE PLAYER */
+.practice-player{display:none;margin-top:1rem;animation:scaleIn .38s var(--ease) both}
+body.pm .practice-player{display:block}
+body.pm .toolbar,body.pm .results-row,body.pm .songs-grid,body.pm .footer-note{display:none}
+body.pm .hero{padding:1rem 0 0}
+body.pm .hero-inner{grid-template-columns:1fr;padding:1rem 1.5rem}
+body.pm .page{max-width:820px}
+
+.player-card{position:relative;padding:2.25rem 2.25rem 2rem;border-radius:28px;background:var(--card);border:1px solid rgba(255,255,255,.07);overflow:hidden}
+.player-card.pr-ready{box-shadow:0 0 65px rgba(77,184,112,.08),var(--sh3)}
+.player-card.pr-work {box-shadow:0 0 65px rgba(200,128,48,.08), var(--sh3)}
+.player-card.pr-idle {box-shadow:0 0 65px rgba(120,104,176,.08),var(--sh3)}
+.player-card::before{content:'';position:absolute;inset:0;pointer-events:none;transition:background var(--ts);opacity:.65}
+.player-card.pr-ready::before{background:radial-gradient(ellipse at 82% 0%,rgba(32,75,48,.5),transparent 58%)}
+.player-card.pr-work::before {background:radial-gradient(ellipse at 82% 0%,rgba(82,54,14,.5),transparent 58%)}
+.player-card.pr-idle::before {background:radial-gradient(ellipse at 82% 0%,rgba(52,42,82,.5),transparent 58%)}
+.player-card::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;transition:background var(--ts)}
+.player-card.pr-ready::after{background:linear-gradient(90deg,var(--ready-acc),transparent 60%)}
+.player-card.pr-work::after {background:linear-gradient(90deg,var(--work-acc), transparent 60%)}
+.player-card.pr-idle::after {background:linear-gradient(90deg,var(--idle-acc), transparent 60%)}
+.player-wm{position:absolute;top:-.5rem;right:1.2rem;font-family:var(--fd);font-size:clamp(7rem,14vw,11rem);font-weight:700;line-height:1;letter-spacing:-.04em;color:rgba(255,255,255,.028);user-select:none;pointer-events:none}
+.player-inner{position:relative;z-index:1}
+
+.player-top-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.4rem;flex-wrap:wrap}
+.player-now{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .85rem;border-radius:var(--rp);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.player-right-bar{display:flex;align-items:center;gap:.75rem}
+.player-counter{color:var(--faint);font-size:.82rem}
+
+.player-top{display:flex;gap:1.1rem;align-items:flex-start;margin-bottom:1.15rem}
+.player-num{flex:0 0 60px;height:60px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,rgba(50,80,110,.5),rgba(90,68,44,.42));font-family:var(--fd);font-size:1.15rem;font-weight:600;border:1px solid rgba(255,255,255,.08);box-shadow:var(--sh1);color:rgba(255,255,255,.85)}
+.player-tw{min-width:0}
+.player-title {margin:0;font-family:var(--fd);font-size:clamp(2rem,5.5vw,3.4rem);font-weight:600;line-height:1.06;letter-spacing:-.03em;color:rgba(255,248,235,.96)}
+.player-artist{margin:.38rem 0 0;color:var(--muted);font-size:clamp(.95rem,2vw,1.1rem)}
+.player-pills {display:flex;flex-wrap:wrap;gap:.48rem;margin-bottom:1.2rem}
+
+.player-notes{margin-bottom:1.4rem}
+.player-notes .notes-txt{font-size:.94rem;line-height:1.72;color:rgba(255,240,220,.85)}
+
+.player-links{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.4rem}
+.player-links .lnk{min-height:54px;font-size:.95rem}
+
+/* RUN COUNTER */
+.run-section{margin-bottom:1.4rem}
+.run-btn{width:100%;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.24rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;cursor:pointer;transition:all var(--t)}
+.run-btn:hover{transform:translateY(-2px);box-shadow:var(--sh2);background:rgba(255,255,255,.07)}
+.run-btn:active{transform:scale(.97)!important}
+.run-btn.bounce{animation:runBounce .38s var(--ease)}
+.run-top-label{font-size:.7rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);user-select:none}
+.run-num{font-family:var(--fd);font-size:2.8rem;font-weight:700;line-height:1;color:rgba(255,248,235,.94);user-select:none}
+.run-sub{font-size:.78rem;color:var(--faint);user-select:none}
+.run-undo-btn{display:block;margin:.45rem auto 0;background:none;border:none;color:var(--faint);font-family:var(--fb);font-size:.76rem;cursor:pointer;padding:.2rem .6rem;border-radius:var(--rp);transition:color var(--t),background var(--t)}
+.run-undo-btn:hover{color:var(--muted);background:rgba(255,255,255,.05);transform:none}
+
+/* MASTERY STARS — prominent */
+.mastery-section{margin-bottom:1.4rem;padding:1rem 1.1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px}
+.mastery-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.mastery-lbl{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mastery-level{font-size:.82rem;color:var(--star);font-weight:600}
+.stars-row{display:flex;align-items:center;gap:.5rem}
+.star-btn{background:none;border:none;padding:.05rem;font-size:2rem;color:rgba(255,255,255,.1);cursor:pointer;border-radius:6px;transition:color .15s ease,transform .18s var(--ease);line-height:1}
+.star-btn:hover{transform:scale(1.25)}
+.star-btn.on{color:var(--star);animation:starIn .22s var(--ease)}
+.star-btn:hover~.star-btn{color:rgba(255,255,255,.1)!important}
+.stars-row:hover .star-btn{color:rgba(232,184,80,.3)}
+.stars-row:hover .star-btn:hover,.stars-row:hover .star-btn:hover~.star-btn+.star-btn+.star-btn+.star-btn+.star-btn{color:inherit}
+
+/* Navigation — music remote */
+.player-status{margin-bottom:1.35rem}
+.player-status .sbtn{min-height:46px;font-size:.88rem}
+.player-nav{display:flex;align-items:center;gap:.75rem}
+.player-nav .mbtn{border-radius:18px;font-weight:600}
+.player-nav .mbtn[data-player-nav="previous"],
+.player-nav .mbtn[data-player-nav="next"]{flex:1;min-height:68px;font-size:1.15rem;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.09)}
+.player-nav .mbtn[data-player-nav="previous"]:not([disabled]):hover,
+.player-nav .mbtn[data-player-nav="next"]:not([disabled]):hover{background:rgba(255,255,255,.12);transform:translateY(-2px);box-shadow:var(--sh2)}
+.player-nav .mbtn[data-player-nav="back"]{flex:0 0 auto;min-height:44px;font-size:.8rem;border-radius:var(--rp);padding:.55rem 1.1rem;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.06);color:var(--faint)}
+.player-nav .mbtn[data-player-nav="back"]:hover{background:rgba(255,255,255,.07);color:var(--muted);transform:none}
+.player-nav .mbtn[disabled]{opacity:.25;cursor:not-allowed;transform:none!important}
+
+.footer-note{margin-top:2rem;text-align:center;color:rgba(255,255,255,.14);font-size:.82rem}
+
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr}.toolbar{position:static}}
+@media(max-width:640px){
+  .page{width:calc(100% - 1rem)}.hero{padding-top:.75rem}.hero-inner{padding:1.2rem}
+  h1{font-size:1.9rem}.stats-row,.practice-grid{grid-template-columns:1fr}
+  .links-grid,.player-links,.status-controls{grid-template-columns:1fr}
+  .player-top{flex-direction:column}.player-nav{flex-direction:column}
+  .player-nav .mbtn[data-player-nav="previous"],.player-nav .mbtn[data-player-nav="next"]{width:100%;min-height:60px}
+  .player-nav .mbtn[data-player-nav="back"]{order:3;width:100%}
+  .session-bar{gap:.5rem}
+  .session-controls{margin-left:0;width:100%}
+  .session-btn{flex:1 1 calc(50% - .25rem)}
+  .filter-group{overflow-x:auto;flex-wrap:nowrap;padding-bottom:.25rem;-webkit-overflow-scrolling:touch}
+  .fbtn{flex:0 0 auto}.run-num{font-size:2.2rem}.run-btn{min-height:78px}
+  .star-btn{font-size:1.75rem}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="hero">
+  <div class="hero-glass"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow"><span class="pulse-dot"></span>Rehearsal Studio</div>
+      <h1>Your Stage Setlist</h1>
+      <p class="hero-sub">37 songs before the big night. Train smart, track every run, protect your voice.</p>
+      <div class="hero-actions">
+        <button class="mbtn" id="practiceModeToggle" type="button" aria-pressed="false">▶&nbsp; Practice Player</button>
+        <button class="mbtn" id="shuffleBtn" type="button">🔀 Shuffle</button>
+      </div>
+      <div class="session-bar">
+        <div class="session-item"><span class="session-icon">⏱</span><div><div id="sessionTimer" class="timer-disp">00h00</div><div class="session-sub">Current session</div></div></div>
+        <div class="sdiv"></div>
+        <div class="session-item"><div><div id="sessionSongs" class="session-val">0</div><div class="session-sub">Songs today</div></div></div>
+        <div class="sdiv"></div>
+        <div class="session-item"><div><div id="sessionRuns" class="session-val">0</div><div class="session-sub">Total runs</div></div></div>
+        <div id="breakAlert" class="break-alert">💧 Voice break?</div>
+        <div class="session-controls">
+          <button class="session-btn" id="sessionStartBtn" type="button">Start</button>
+          <button class="session-btn" id="sessionPauseBtn" type="button">Pause</button>
+          <button class="session-btn" id="sessionResumeBtn" type="button">Resume</button>
+          <button class="session-btn" id="sessionStopBtn" type="button">Stop</button>
+        </div>
+      </div>
+    </div>
+    <aside class="progress-panel">
+      <p class="panel-label">Progress</p>
+      <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="practice-panel" id="practicePanel"></div>
+      <div class="edit-tip">Edit songs: find <strong><code>const songs = [</code></strong> in this file.</div>
+    </aside>
+  </div>
+  <div class="arc-wrap"><span class="arc-label">Set arc</span><div class="arc-strip" id="energyArc"></div></div>
+</header>
+
+<section class="toolbar" aria-label="Search and filters">
+  <div class="toolbar-row">
+    <label class="search-wrap" for="searchInput">
+      <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="searchInput" class="search-input" type="search" placeholder="Search title or artist…">
+    </label>
+    <div class="filter-group" id="filterGroup">
+      <button class="fbtn active" type="button" data-filter="all">All</button>
+      <button class="fbtn" type="button" data-filter="easy">Easy</button>
+      <button class="fbtn" type="button" data-filter="medium">Medium</button>
+      <button class="fbtn" type="button" data-filter="hard">Hard</button>
+      <button class="fbtn" type="button" data-filter="not worked">Not worked</button>
+      <button class="fbtn" type="button" data-filter="ready">Ready ✓</button>
+      <button class="fbtn" type="button" data-filter="due">⚠ Due</button>
+      <div class="filter-sep"></div>
+      <button class="fbtn" type="button" data-filter="stars-0">☆ Unrated</button>
+      <button class="fbtn" type="button" data-filter="stars-1">★</button>
+      <button class="fbtn" type="button" data-filter="stars-2">★★</button>
+      <button class="fbtn" type="button" data-filter="stars-3">★★★</button>
+      <button class="fbtn" type="button" data-filter="stars-4">★★★★</button>
+      <button class="fbtn" type="button" data-filter="stars-5">★★★★★</button>
+    </div>
+  </div>
+</section>
+
+<div class="results-row">
+  <div id="resultsSummary">37 songs</div>
+  <div>← → keys · Space to log a run</div>
+</div>
+
+<main id="songsGrid" class="songs-grid" aria-live="polite"></main>
+<section id="practicePlayer" class="practice-player" aria-live="polite"></section>
+<div class="footer-note">Double-click in Finder to open · Works fully offline</div>
+</div>
+<div id="g-toast"></div>
+
+<script>
+const songs=[
+  {number:1,title:"Sleeping Satellite",artist:"Tasmin Archer",difficulty:"medium",status:"to work",youtubeUrl:"https://www.youtube.com/watch?v=XVL7SGYNQrk",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3WSyYBhLZRLbQo2tJgFvSR",lyricsUrl:"",notes:"Start intimate and steady. Support the longer phrases before the chorus and keep the top notes open."},
+  {number:2,title:"Maybe Tomorrow",artist:"Stereophonics",difficulty:"easy",status:"ready",youtubeUrl:"https://www.youtube.com/watch?v=2q9_ZEtuTR8",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/4IkkoGUDa9GCxOdd0MwfII",lyricsUrl:"",notes:"Relax into the verses, then widen the sound in the chorus. Watch the pacing so it never drags."},
+  {number:3,title:"Freed From Desire",artist:"Gala",difficulty:"medium",status:"to work",youtubeUrl:"https://www.youtube.com/watch?v=p3l7fgvrEKM",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3Ucr6hQQuY8cZ0UqXV8uO2",lyricsUrl:"",notes:"Keep the groove playful. Save energy for repeated chorus lines and stay rhythmically precise."},
+  {number:4,title:"True Colors",artist:"Cyndi Lauper",difficulty:"easy",status:"ready",youtubeUrl:"https://www.youtube.com/watch?v=LPn0KFlbqX8",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/2A6yzRGMgSQCUapR2ptm6A",lyricsUrl:"",notes:"Gentle delivery, warm vowels, and a clear emotional arc. Let the bridge bloom without pushing."},
+  {number:5,title:"Let's Dance",artist:"David Bowie",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/17mVS2oP4W5OKxItWCtPWl",lyricsUrl:"",notes:"Confident entrance. Keep the phrasing crisp and leave room to move physically without losing breath."},
+  {number:6,title:"J'ai cherché",artist:"Amir",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/1lzRxwbdl86iJlYMz48KoD",lyricsUrl:"",notes:"Smile in the tone. The chorus needs lift and forward placement; watch French diction on fast phrases."},
+  {number:7,title:"Karma",artist:"Marina",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/MARINA%20Karma",lyricsUrl:"",notes:"Lean into attitude, but keep the pitch centered. Practice speech-like phrasing before full singing."},
+  {number:8,title:"Toxic",artist:"Britney Spears",difficulty:"hard",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3z4vIp3wo8I34Z2V5ik3oA",lyricsUrl:"",notes:"Short breath plan. Keep the delivery light and precise, especially through the tight rhythmic lines."},
+  {number:9,title:"Cry Me a River",artist:"Justin Timberlake",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/7Lf7oSEVdzZqTA0kEDSlS5",lyricsUrl:"",notes:"Focus on groove and clean consonants. The falsetto moments need ease, not force."},
+  {number:10,title:"Drive",artist:"Incubus",difficulty:"easy",status:"ready",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/4IyDlKobNAzDkl6USG7rO2",lyricsUrl:"",notes:"Keep the tone conversational and grounded. Let the chorus expand naturally without rushing."},
+  {number:11,title:"J'en rêve encore",artist:"De Palmas",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/07aWTEpDmPPCx5XkqhRHfH",lyricsUrl:"",notes:"Shape the verses with patience. Build intensity gradually and watch nasal tension on sustained notes."},
+  {number:12,title:"Everybody",artist:"Backstreet Boys",difficulty:"medium",status:"to work",youtubeUrl:"https://www.youtube.com/watch?v=6M6samPEMpM",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/45qxYFsK4GxX07VpdauvfY",lyricsUrl:"",notes:"Energy first. Clear rhythm, playful stage presence, and enough breath left for the repeated hook."},
+  {number:13,title:"What Is Love",artist:"Haddaway",difficulty:"medium",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/4v6jydWBTAIqnyPVNyOAdc",lyricsUrl:"",notes:"Stay steady in the pulse. Support the hook and avoid tightening the neck on the repeated high phrases."},
+  {number:14,title:"Missing",artist:"Everything But The Girl",difficulty:"easy",status:"ready",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/2i3QBYMQXcmK2b9IGVtl4m",lyricsUrl:"",notes:"Cool, airy tone. Keep the emotion understated and let the phrasing float over the groove."},
+  {number:15,title:"Voyage voyage",artist:"Desireless",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/2d8D7uk3tbAThjRkdfrx9c",lyricsUrl:"",notes:"Maintain a dreamy line and stable tempo. Great place to take a short pause after the song."},
+  {number:16,title:"Heaven",artist:"Gotthard",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/0Dpz5RUpyDdLu5CRkJa1hD",lyricsUrl:"",notes:"Strong breath support for the chorus. Open vowels and avoid over-driving the rock tone too early."},
+  {number:17,title:"Upside Down",artist:"Diana Ross",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3pbtBomO4Zt5gGiqsYeiBH",lyricsUrl:"",notes:"Dance-friendly groove. Keep the articulation clean and the chorus buoyant without pushing."},
+  {number:18,title:"Skyfall",artist:"Adèle",difficulty:"hard",status:"not worked",youtubeUrl:"https://www.youtube.com/watch?v=DeumyOzKqgI",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/6VObnIkLVruX4UVyxWhlqm",lyricsUrl:"",notes:"Big breath before the major lifts. Keep the lower phrases rich and the climaxes tall, not shouted."},
+  {number:19,title:"Just the Two of Us",artist:"Bill Withers",difficulty:"easy",status:"ready",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/1ko2lVN0vKGUl9zrU0qSlT",lyricsUrl:"",notes:"Easy groove and relaxed smile. Watch the pocket and let the melody sit comfortably behind the beat."},
+  {number:20,title:"Killing Me Softly",artist:"Fugees",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/5PrwVtuVcAfgN1aVbB4Yw0",lyricsUrl:"",notes:"Keep the storytelling intimate. Focus on smooth line connection and light dynamics through the verses."},
+  {number:21,title:"Comets",artist:"Cocoon",difficulty:"easy",status:"ready",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/2sspJbj2bHTqvzbrvj5nSr",lyricsUrl:"",notes:"Soft entry, straight tone where it helps, and clean blend between chest and head voice."},
+  {number:22,title:"Natural Blues",artist:"Moby",difficulty:"medium",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/6hmtNel4OKlBpBcTO7ao3o",lyricsUrl:"",notes:"Sustain the mood and the pulse. Keep the repeated phrases intentional, not flat."},
+  {number:23,title:"Radioactive",artist:"Imagine Dragons",difficulty:"hard",status:"to work",youtubeUrl:"https://www.youtube.com/watch?v=ktvTqknDobU",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/4G8gkOterJn0Ywt6uhqbhp",lyricsUrl:"",notes:"Ground the low phrases and prepare for explosive choruses. Avoid throat tension on the biggest moments."},
+  {number:24,title:"Sinking Ship",artist:"Seafret",difficulty:"medium",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/Seafret%20Sinking%20Ship",lyricsUrl:"",notes:"Lean into vulnerability. Practice the emotional build so the chorus lands with clarity, not strain."},
+  {number:25,title:"Il y a",artist:"Vanessa Paradis",difficulty:"easy",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/Vanessa%20Paradis%20Il%20y%20a",lyricsUrl:"",notes:"Keep it airy and elegant. French diction should stay clear without becoming stiff."},
+  {number:26,title:"Ordinary World",artist:"Duran Duran",difficulty:"medium",status:"ready",youtubeUrl:"https://www.youtube.com/watch?v=FqIACCH20JU",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/0wokCRaKD0zPNhMRXAgVsr",lyricsUrl:"",notes:"Warm and lyrical. Let the chorus open a little wider while staying emotionally centered."},
+  {number:27,title:"7 rings",artist:"Ariana Grande",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/6ocbgoVGwYJhOv1GgI9NsF",lyricsUrl:"",notes:"Keep the rhythm sharp and the attitude light. Work the transitions between spoken and sung delivery."},
+  {number:28,title:"Enjoy the Ride",artist:"Morcheeba",difficulty:"easy",status:"ready",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/Morcheeba%20Enjoy%20the%20Ride",lyricsUrl:"",notes:"Easy, floating groove. Avoid over-singing and let the phrasing stay smooth and understated."},
+  {number:29,title:"Behind Blue Eyes",artist:"Limp Bizkit",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/24NAvbfmN5qcf6nVXpiJbc",lyricsUrl:"",notes:"Hold back early so the later sections still have room to grow. Keep the emotional shift controlled."},
+  {number:30,title:"Je te promets",artist:"Zaho",difficulty:"medium",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/0RlUWNew0QbVdsQ4vYCYTg",lyricsUrl:"",notes:"Build trust in the phrasing before adding power. Watch line endings so they stay supported."},
+  {number:31,title:"Liberian Girl",artist:"Michael Jackson",difficulty:"medium",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/0pzBNg7YwHZqTGD350eZGS",lyricsUrl:"",notes:"Smooth legato and controlled tenderness. Keep the groove subtle and the soft highs easy."},
+  {number:32,title:"La corrida",artist:"Francis Cabrel",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/2wdYh7eL7RColXnAjP9epH",lyricsUrl:"",notes:"Tell the story clearly. Pace the emotional rise and protect the voice during the stronger sections."},
+  {number:33,title:"Tout donner",artist:"Gims",difficulty:"hard",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/GIMS%20Tout%20donner",lyricsUrl:"",notes:"Strong conviction, stable pitch center. Practice breath timing before the larger hook moments."},
+  {number:34,title:"Le coup de soleil",artist:"Richard Cocciante",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/search/Richard%20Cocciante%20Le%20coup%20de%20soleil",lyricsUrl:"",notes:"Commit to the theatrical arc. Keep the chest voice supported and release the jaw on sustained vowels."},
+  {number:35,title:"Gangnam Style",artist:"PSY",difficulty:"medium",status:"to work",youtubeUrl:"https://www.youtube.com/watch?v=9bZkp7q19f0",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/1PKnaWkakd5CBjNv8NyaSK",lyricsUrl:"",notes:"Performance energy matters as much as singing. Keep the rhythm playful and save breath for movement."},
+  {number:36,title:"Tous les mêmes",artist:"Stromae",difficulty:"hard",status:"not worked",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3F48o2GtErKPdTzqbMPWkF",lyricsUrl:"",notes:"Work the fast diction carefully. The character voice should stay expressive without tightening the throat."},
+  {number:37,title:"Beggin",artist:"Måneskin",difficulty:"hard",status:"to work",youtubeUrl:"",karaokeUrl:"",spotifyUrl:"https://open.spotify.com/track/3Wrjm47oTz2sjIgck11l5e",lyricsUrl:"",notes:"High energy finish. Use grounded support in the hooks and avoid spending everything in the first half."}
+];
+
+const pauseAfterNumbers=new Set([15]);
+const SK={statuses:'karaoke-setlist-statuses',notes:'stage-notes',runs:'stage-runs',last:'stage-last',ratings:'stage-ratings',rehearsed:'stage-rehearsed-songs',practice:'stage-practice-stats'};
+const MAX_SESSION_RECOVERY_MS=6*60*60*1000;
+
+// ★ MASTERY LABELS — 1=just discovered, 5=eyes closed
+const MASTERY_LABELS=['','Discovering','Getting familiar','Know it','Confident','Eyes closed! ✓'];
+
+const ARC_COLORS={
+  ready:        {easy:'#4db870',medium:'#3aa058',hard:'#258040'},
+  'to work':    {easy:'#d4a030',medium:'#c08020',hard:'#a86010'},
+  'not worked': {easy:'#8870c0',medium:'#6858a8',hard:'#504090'}
+};
+const NOTE_PH='Add a practice note…';
+
+function load(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):{}}catch{return{}}}
+function save(k,d){try{localStorage.setItem(k,JSON.stringify(d))}catch{}}
+
+function pad2(n){return String(n).padStart(2,'0')}
+function localDayKey(d=new Date()){return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function formatDayLabel(key){
+  const [y,m,d]=String(key||'').split('-').map(Number);
+  return y&&m&&d?`${pad2(d)}.${pad2(m)}.${y}`:'--.--.----';
+}
+function formatPracticeTime(ms){
+  const mins=Math.max(0,Math.floor(Number(ms||0)/60000));
+  return`${pad2(Math.floor(mins/60))}h${pad2(mins%60)}`;
+}
+function initPracticeStats(){
+  const raw=load(SK.practice);
+  const stats={
+    siteOpens:Math.max(0,Number(raw.siteOpens)||0),
+    firstOpened:typeof raw.firstOpened==='string'&&raw.firstOpened?raw.firstOpened:localDayKey(),
+    totalMs:Math.max(0,Number(raw.totalMs)||0),
+    history:{},
+    currentSession:{status:'idle',elapsedMs:0,startedAt:null}
+  };
+  if(raw.history&&typeof raw.history==='object'){
+    Object.entries(raw.history).forEach(([key,val])=>{
+      const ms=Math.max(0,Number(val)||0);
+      if(ms>0)stats.history[key]=ms;
+    });
+  }
+  if(raw.currentSession&&typeof raw.currentSession==='object'){
+    const status=['idle','running','paused'].includes(raw.currentSession.status)?raw.currentSession.status:'idle';
+    const elapsedMs=Math.max(0,Number(raw.currentSession.elapsedMs)||0);
+    const startedAt=Number.isFinite(raw.currentSession.startedAt)?raw.currentSession.startedAt:null;
+    stats.currentSession={status,elapsedMs,startedAt};
+  }
+  stats.siteOpens+=1;
+  if(stats.currentSession.status==='running'){
+    const delta=stats.currentSession.startedAt?Date.now()-stats.currentSession.startedAt:0;
+    if(delta>0&&delta<=MAX_SESSION_RECOVERY_MS)stats.currentSession.elapsedMs+=delta;
+    stats.currentSession.startedAt=null;
+    stats.currentSession.status=stats.currentSession.elapsedMs>0?'paused':'idle';
+  }
+  save(SK.practice,stats);
+  return stats;
+}
+
+let savedStatuses=load(SK.statuses),savedNotes=load(SK.notes),savedRuns=load(SK.runs),savedLast=load(SK.last),savedRatings=load(SK.ratings),savedRehearsed=load(SK.rehearsed),practiceStats=initPracticeStats();
+let activeFilter='all',searchTerm='',practiceMode=false,shuffleMode=false,shuffleOrder=[],selectedSongNumber=songs[0]?.number??null,activeEmbed=null,rehearsedFlashSong=null;
+
+const $=id=>document.getElementById(id);
+const songsGrid=$('songsGrid'),statsRow=$('statsRow'),barFill=$('barFill'),searchInput=$('searchInput'),filterGroup=$('filterGroup'),resultsSummary=$('resultsSummary'),practiceModeToggle=$('practiceModeToggle'),practicePlayer=$('practicePlayer'),sessionTimerEl=$('sessionTimer'),sessionSongsEl=$('sessionSongs'),sessionRunsEl=$('sessionRuns'),breakAlertEl=$('breakAlert'),energyArcEl=$('energyArc'),shuffleBtn=$('shuffleBtn'),gToast=$('g-toast'),practicePanel=$('practicePanel'),sessionStartBtn=$('sessionStartBtn'),sessionPauseBtn=$('sessionPauseBtn'),sessionResumeBtn=$('sessionResumeBtn'),sessionStopBtn=$('sessionStopBtn');
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function cap(s){return s.replace(/\b\w/g,m=>m.toUpperCase())}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function pc(v){return'p-'+v.replace(/\s+/g,'-')}
+function slabel(s){return s==='not worked'?'Not worked':s==='to work'?'To work':'Ready ✓'}
+function starStr(n,total=5){return'★'.repeat(n)+'☆'.repeat(total-n)}
+
+function getSongStatus(s){return savedStatuses[s.number]||s.status}
+function isRehearsed(num){return!!savedRehearsed[num]}
+function rehearsedBtnHTML(num,large=false){
+  const on=isRehearsed(num),flash=rehearsedFlashSong===num?' flash':'';
+  return`<button class="rehearse-btn${on?' active':''}${flash}" type="button" data-toggle-rehearsed="${num}" aria-pressed="${on}" ${large?'data-large-toggle="true"':''}><span class="rehearse-check">${on?'✓':'○'}</span><span>Rehearsed</span></button>`;
+}
+function savePracticeStats(){save(SK.practice,practiceStats)}
+function getPracticeSessionStatus(){return practiceStats.currentSession.status}
+function getCurrentSessionElapsedMs(now=Date.now()){
+  const session=practiceStats.currentSession;
+  if(session.status==='running'&&session.startedAt)return session.elapsedMs+Math.max(0,now-session.startedAt);
+  return Math.max(0,session.elapsedMs||0);
+}
+function getTodayPracticeMs(){return Math.max(0,Number(practiceStats.history[localDayKey()])||0)}
+function getDisplayTodayPracticeMs(){return getTodayPracticeMs()+getCurrentSessionElapsedMs()}
+function getDisplayTotalPracticeMs(){return Math.max(0,practiceStats.totalMs||0)+getCurrentSessionElapsedMs()}
+function getPracticeHistoryRows(limit=7){
+  const rows=[];
+  const now=new Date();
+  for(let i=0;i<limit;i++){
+    const day=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);
+    const key=localDayKey(day);
+    const stored=Math.max(0,Number(practiceStats.history[key])||0);
+    const ms=i===0?stored+getCurrentSessionElapsedMs():stored;
+    if(i===0||ms>0)rows.push({key,ms});
+  }
+  return rows;
+}
+function sessionStateLabel(){
+  const state=getPracticeSessionStatus();
+  return state==='running'?'Running':state==='paused'?'Paused':'Idle';
+}
+function renderPracticePanel(){
+  practicePanel.innerHTML=`
+    <div class="practice-panel-head">
+      <p class="panel-label">Practice time</p>
+      <div class="practice-badge">${sessionStateLabel()}</div>
+    </div>
+    <div class="practice-grid">
+      <div class="practice-stat"><span>Current session</span><strong id="practiceCurrent">00h00</strong></div>
+      <div class="practice-stat"><span>Today</span><strong id="practiceToday">00h00</strong></div>
+      <div class="practice-stat"><span>Total</span><strong id="practiceTotal">00h00</strong></div>
+      <div class="practice-stat"><span>Site opens</span><strong id="practiceOpens">0</strong></div>
+      <div class="practice-stat full"><span>First opened</span><strong id="practiceFirstOpened">--.--.----</strong></div>
+    </div>
+    <div class="practice-history">
+      <div class="practice-history-title">Last 7 days</div>
+      <div class="practice-history-list" id="practiceHistoryList"></div>
+    </div>`;
+  updatePracticePanel();
+}
+function updatePracticePanel(){
+  const currentEl=$('practiceCurrent'),todayEl=$('practiceToday'),totalEl=$('practiceTotal'),opensEl=$('practiceOpens'),firstOpenedEl=$('practiceFirstOpened'),historyEl=$('practiceHistoryList');
+  if(currentEl)currentEl.textContent=formatPracticeTime(getCurrentSessionElapsedMs());
+  if(todayEl)todayEl.textContent=formatPracticeTime(getDisplayTodayPracticeMs());
+  if(totalEl)totalEl.textContent=formatPracticeTime(getDisplayTotalPracticeMs());
+  if(opensEl)opensEl.textContent=String(practiceStats.siteOpens||0);
+  if(firstOpenedEl)firstOpenedEl.textContent=formatDayLabel(practiceStats.firstOpened);
+  const badgeEl=practicePanel.querySelector('.practice-badge');
+  if(badgeEl)badgeEl.textContent=sessionStateLabel();
+  if(historyEl)historyEl.innerHTML=getPracticeHistoryRows().map(row=>`<div class="practice-history-item"><span>${formatDayLabel(row.key)}</span><span>${formatPracticeTime(row.ms)} practiced</span></div>`).join('');
+}
+function updatePracticeControls(){
+  const state=getPracticeSessionStatus(),hasElapsed=getCurrentSessionElapsedMs()>0;
+  sessionStartBtn.disabled=state==='running'||state==='paused';
+  sessionPauseBtn.disabled=state!=='running';
+  sessionResumeBtn.disabled=state!=='paused'||!hasElapsed;
+  sessionStopBtn.disabled=state==='idle'&&!hasElapsed;
+}
+function syncPracticeUI(){
+  const sessionMs=getCurrentSessionElapsedMs(),mins=Math.floor(sessionMs/60000),state=getPracticeSessionStatus();
+  sessionTimerEl.textContent=formatPracticeTime(sessionMs);
+  if(mins>=45&&state!=='idle'){sessionTimerEl.className='timer-disp danger';breakAlertEl.style.display='flex'}
+  else if(mins>=30&&state!=='idle'){sessionTimerEl.className='timer-disp warn';breakAlertEl.style.display='none'}
+  else{sessionTimerEl.className='timer-disp';breakAlertEl.style.display='none'}
+  updatePracticeControls();
+  updatePracticePanel();
+}
+function startPracticeSession(){
+  practiceStats.currentSession={status:'running',elapsedMs:0,startedAt:Date.now()};
+  savePracticeStats();syncPracticeUI();
+}
+function pausePracticeSession(){
+  if(getPracticeSessionStatus()!=='running')return;
+  practiceStats.currentSession.elapsedMs=getCurrentSessionElapsedMs();
+  practiceStats.currentSession.startedAt=null;
+  practiceStats.currentSession.status='paused';
+  savePracticeStats();syncPracticeUI();
+}
+function resumePracticeSession(){
+  if(getPracticeSessionStatus()!=='paused'||getCurrentSessionElapsedMs()<=0)return;
+  practiceStats.currentSession.status='running';
+  practiceStats.currentSession.startedAt=Date.now();
+  savePracticeStats();syncPracticeUI();
+}
+function stopPracticeSession(){
+  const elapsedMs=getCurrentSessionElapsedMs();
+  if(elapsedMs>0){
+    const dayKey=localDayKey();
+    practiceStats.history[dayKey]=Math.max(0,Number(practiceStats.history[dayKey])||0)+elapsedMs;
+    practiceStats.totalMs=Math.max(0,practiceStats.totalMs||0)+elapsedMs;
+  }
+  practiceStats.currentSession={status:'idle',elapsedMs:0,startedAt:null};
+  savePracticeStats();syncPracticeUI();
+  if(elapsedMs>0)showToast(`Saved ${formatPracticeTime(elapsedMs)} of practice time`);
+}
+function toggleRehearsed(num){
+  if(isRehearsed(num))delete savedRehearsed[num];else savedRehearsed[num]=true;
+  save(SK.rehearsed,savedRehearsed);
+  rehearsedFlashSong=num;
+  render();
+  setTimeout(()=>{if(rehearsedFlashSong===num)rehearsedFlashSong=null},260);
+}
+
+// Toast + Undo
+let toastTimer=null,pendingUndo=null;
+function showToast(msg,undoFn){
+  clearTimeout(toastTimer);pendingUndo=undoFn;
+  gToast.innerHTML=`<span>${msg}</span>${undoFn?'<button class="t-undo">Undo</button>':''}`;
+  gToast.classList.add('show');
+  const undoBtn=gToast.querySelector('.t-undo');
+  if(undoBtn)undoBtn.onclick=()=>{clearTimeout(toastTimer);if(pendingUndo){pendingUndo();pendingUndo=null}gToast.classList.remove('show')};
+  toastTimer=setTimeout(()=>{gToast.classList.remove('show');pendingUndo=null},4000);
+}
+function setSongStatus(num,status){
+  const old=savedStatuses[num]||songs.find(s=>s.number===num)?.status;
+  savedStatuses[num]=status;save(SK.statuses,savedStatuses);
+  showToast(`Marked as ${slabel(status)}`,()=>{if(old)savedStatuses[num]=old;else delete savedStatuses[num];save(SK.statuses,savedStatuses);render()});
+  render();
+}
+
+// Notes
+function getNotes(song){const n=savedNotes[song.number];return n!==undefined?n:song.notes}
+function notesBoxHTML(song,extra=''){
+  const n=getNotes(song),isEmpty=!n||!n.trim();
+  return`<div class="notes-box${extra?' '+extra:''}" data-notes-song="${song.number}">
+    <div class="notes-lbl">Practice notes <span class="edit-hint">· tap to edit</span></div>
+    <div class="notes-txt" contenteditable="false" data-notes-num="${song.number}" data-ph="${isEmpty}" data-placeholder="${NOTE_PH}">${isEmpty?'':esc(n)}</div>
+  </div>`;
+}
+function attachNotesEditing(container){
+  container.querySelectorAll('[data-notes-song]').forEach(box=>{
+    const txtEl=box.querySelector('.notes-txt');if(!txtEl)return;
+    const num=Number(txtEl.dataset.notesNum),song=songs.find(s=>s.number===num);
+    let snap='';
+    box.addEventListener('click',e=>{
+      if(e.target.closest('a,button'))return;e.stopPropagation();
+      if(txtEl.contentEditable==='true')return;
+      snap=txtEl.dataset.ph==='true'?'':txtEl.textContent;
+      txtEl.contentEditable='true';
+      if(txtEl.dataset.ph==='true')txtEl.textContent='';
+      txtEl.focus();
+      const r=document.createRange();r.selectNodeContents(txtEl);r.collapse(false);
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);
+    });
+    txtEl.addEventListener('blur',()=>{
+      const t=txtEl.textContent.trim();savedNotes[num]=t;save(SK.notes,savedNotes);
+      const empty=!t;txtEl.dataset.ph=String(empty);if(empty)txtEl.textContent='';txtEl.contentEditable='false';
+    });
+    txtEl.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();txtEl.blur()}
+      if(e.key==='Escape'){txtEl.textContent=snap;txtEl.dataset.ph=snap?'false':'true';txtEl.contentEditable='false'}
+    });
+    txtEl.addEventListener('input',()=>{txtEl.dataset.ph=!txtEl.textContent.trim()?'true':'false'});
+  });
+}
+
+// Runs
+function getRuns(num){const d=savedRuns[num];if(!d)return{today:0,total:0};return d.date!==todayKey()?{today:0,total:d.total||0}:{today:d.today||0,total:d.total||0}}
+function addRun(num){
+  const td=todayKey(),curr=savedRuns[num]||{date:td,today:0,total:0};
+  if(curr.date!==td){curr.date=td;curr.today=0}curr.today++;curr.total++;savedRuns[num]=curr;save(SK.runs,savedRuns);
+  savedLast[num]=new Date().toISOString();save(SK.last,savedLast);updateSessionBar();renderPracticePlayer(true);
+}
+function removeRun(num){
+  const td=todayKey(),curr=savedRuns[num];if(!curr||curr.date!==td||curr.today<=0)return;
+  curr.today--;curr.total=Math.max(0,curr.total-1);savedRuns[num]=curr;save(SK.runs,savedRuns);updateSessionBar();renderPracticePlayer();
+}
+
+// Mastery rating
+function getRating(num){return savedRatings[num]||0}
+function setRating(num,r){
+  // Toggle: clicking same star again clears it
+  const cur=savedRatings[num]||0;
+  savedRatings[num]=cur===r?0:r;
+  save(SK.ratings,savedRatings);renderPracticePlayer();renderEnergyArc();
+  // Also update card if visible
+  const cardPillEl=document.querySelector(`.song-card [data-card-num="${num}"] .p-stars`);
+  if(cardPillEl)renderSongs();
+}
+
+function getLastInfo(num){
+  const ts=savedLast[num];if(!ts)return null;
+  const diff=Date.now()-new Date(ts).getTime(),days=Math.floor(diff/86400000),hrs=Math.floor(diff/3600000);
+  if(days===0&&hrs===0)return{label:'Just now',overdue:false};
+  if(days===0)return{label:hrs+'h ago',overdue:false};
+  if(days===1)return{label:'Yesterday',overdue:false};
+  return{label:days+'d ago',overdue:days>=3};
+}
+
+// Links + embed helpers
+function searchUrl(base,q){return base+encodeURIComponent(q)}
+function getYouTubeId(url){
+  if(!url)return null;
+  try{
+    const u=new URL(url);
+    if(u.hostname.includes('youtu.be')){
+      const id=u.pathname.split('/').filter(Boolean)[0];
+      return id||null;
+    }
+    if(u.searchParams.get('v'))return u.searchParams.get('v');
+    const parts=u.pathname.split('/').filter(Boolean);
+    const idx=parts.findIndex(p=>p==='embed'||p==='shorts'||p==='live');
+    if(idx!==-1&&parts[idx+1])return parts[idx+1];
+  }catch{}
+  const m=url.match(/[?&]v=([^&#]+)/)||url.match(/youtu\.be\/([^?#]+)/)||url.match(/\/(?:embed|shorts|live)\/([^?#/]+)/);
+  return m?m[1]:null;
+}
+function getSpotifyId(url){if(!url)return null;const m=url.match(/\/track\/([a-zA-Z0-9]+)/);return m?m[1]:null}
+function getLinks(song){
+  const q=`${song.artist} ${song.title}`;
+  return{youtube:song.youtubeUrl||searchUrl('https://www.youtube.com/results?search_query=',q),karaoke:song.karaokeUrl||searchUrl('https://www.youtube.com/results?search_query=',q+' karaoke'),spotify:song.spotifyUrl||`https://open.spotify.com/search/${encodeURIComponent(q)}`,lyrics:song.lyricsUrl||searchUrl('https://www.google.com/search?q=',q+' lyrics')};
+}
+function renderEmbedSection(song,lnk,ytId,krId,spId){
+  if(!activeEmbed)return'';
+  const bar=(p,i)=>`<div class="embed-bar"><span class="embed-platform">${i} ${p}</span><button class="embed-close-btn" data-close-embed>✕ Close</button></div>`;
+  const noUrl=(href,lbl)=>`<div class="embed-no-url"><span>No direct link</span><a href="${href}" target="_blank" rel="noopener">${lbl} →</a></div>`;
+  const ytFallback=href=>`<div class="embed-fallback"><p class="embed-fallback-note">If the player does not load locally, open it on YouTube.</p><a class="lnk yt" href="${href}" target="_blank" rel="noopener">Open on YouTube</a></div>`;
+  if(activeEmbed==='youtube'){
+    if(!ytId)return`<div class="embed-panel">${bar('YouTube','▶')}${noUrl(lnk.youtube,'Open YouTube search')}</div>`;
+    return`<div class="embed-panel">${bar('YouTube','▶')}<div class="embed-yt"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${ytFallback(lnk.youtube)}</div>`;
+  }
+  if(activeEmbed==='karaoke'){
+    if(!krId)return`<div class="embed-panel">${bar('Karaoke','🎤')}${noUrl(lnk.karaoke,'Open YouTube search')}</div>`;
+    return`<div class="embed-panel">${bar('Karaoke','🎤')}<div class="embed-yt"><iframe src="https://www.youtube.com/embed/${krId}?rel=0" allow="accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${ytFallback(lnk.karaoke)}</div>`;
+  }
+  if(activeEmbed==='spotify'){
+    if(!spId)return`<div class="embed-panel">${bar('Spotify','♫')}${noUrl(lnk.spotify,'Open Spotify')}</div>`;
+    return`<div class="embed-panel">${bar('Spotify','♫')}<div class="embed-sp"><iframe src="https://open.spotify.com/embed/track/${spId}?utm_source=generator&theme=0" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy"></iframe></div></div>`;
+  }
+  return'';
+}
+
+// Filters
+function isDue(song){
+  if(getSongStatus(song)==='ready')return false;
+  const ts=savedLast[song.number];return!ts||((Date.now()-new Date(ts).getTime())/86400000)>=3;
+}
+function matchFilter(song,f){
+  if(f==='all')return true;
+  if(f==='due')return isDue(song);
+  if(f.startsWith('stars-')){return getRating(song.number)===Number(f.split('-')[1])}
+  const s=getSongStatus(song);return song.difficulty===f||s===f;
+}
+function getVisible(){
+  const t=norm(searchTerm.trim());
+  return songs.filter(s=>{const h=norm(`${s.title} ${s.artist}`);return(!t||h.includes(t))&&matchFilter(s,activeFilter)});
+}
+
+// Navigation
+function getSongByNum(n){return songs.find(s=>s.number===n)||null}
+function generateShuffleOrder(){const nums=[...(getVisible().length?getVisible():songs).map(s=>s.number)];for(let i=nums.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[nums[i],nums[j]]=[nums[j],nums[i]]}return nums}
+function getPracticeList(){if(shuffleMode)return shuffleOrder.map(n=>songs.find(s=>s.number===n)).filter(Boolean);const v=getVisible();return v.length?v:songs}
+function getSelected(){return getSongByNum(selectedSongNumber)||songs[0]||null}
+function openPractice(n){selectedSongNumber=n;activeEmbed=null;practiceMode=true;if(!savedLast[n]){savedLast[n]=new Date().toISOString();save(SK.last,savedLast)}render();window.scrollTo({top:0,behavior:'smooth'})}
+function closePractice(){practiceMode=false;activeEmbed=null;render();window.scrollTo({top:0,behavior:'smooth'})}
+function navOffset(off){
+  activeEmbed=null;const list=getPracticeList(),idx=list.findIndex(s=>s.number===selectedSongNumber);
+  if(idx===-1)return;const next=list[idx+off];if(!next)return;
+  selectedSongNumber=next.number;render();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateSessionBar(){
+  const td=todayKey();let s2=0,r2=0;Object.values(savedRuns).forEach(d=>{if(d.date===td&&d.today>0){s2++;r2+=d.today}});
+  sessionSongsEl.textContent=s2;sessionRunsEl.textContent=r2;
+}
+
+// RENDER
+function renderProgress(){
+  const total=songs.length,ready=songs.filter(s=>getSongStatus(s)==='ready').length,pct=Math.round(ready/total*100);
+  barFill.style.width=pct+'%';
+  statsRow.innerHTML=`<div class="stat"><strong>${total}</strong><span>Songs</span></div><div class="stat"><strong>${ready}</strong><span>Ready</span></div><div class="stat"><strong>${total-ready}</strong><span>To work</span></div>`;
+}
+function renderEnergyArc(){
+  energyArcEl.innerHTML=songs.map(song=>{
+    const s=getSongStatus(song),h=song.difficulty==='easy'?35:song.difficulty==='medium'?60:90;
+    const c=(ARC_COLORS[s]||ARC_COLORS['not worked'])[song.difficulty];
+    return`<div class="arc-bar" style="height:${h}%;background:${c}" title="#${song.number} ${esc(song.title)}" data-open-song="${song.number}"></div>`;
+  }).join('');
+}
+function renderSongs(){
+  const vis=getVisible();
+  resultsSummary.textContent=`${vis.length} of ${songs.length} songs`;
+  if(!vis.length){songsGrid.innerHTML=`<div class="empty-state">No songs match — try a different filter.</div>`;return}
+  const parts=[];
+  vis.forEach((song,i)=>{
+    const s=getSongStatus(song),lnk=getLinks(song),runs=getRuns(song.number),lastInfo=getLastInfo(song.number),due=isDue(song),rating=getRating(song.number);
+    const lastTag=lastInfo?`<span class="last-tag${lastInfo.overdue?' overdue':''}">${lastInfo.overdue?'⚠ ':' · '}${lastInfo.label}</span>`:'';
+    const runsPill=runs.today>0?`<span class="pill p-runs">${runs.today}× today</span>`:'';
+    // ★ Star pill — visible on card when rated
+    const starPill=rating>0?`<span class="pill p-stars" title="${MASTERY_LABELS[rating]}">${starStr(rating)}</span>`:'';
+    parts.push(`
+      <article class="song-card" style="--i:${i}" data-open-song="${song.number}" data-s="${s}">
+        ${due?'<div class="due-badge">⚠</div>':''}
+        <div class="song-top">
+          <div class="song-num">${song.number}</div>
+          <div class="song-head">
+            <h2 class="song-title">${esc(song.title)}</h2>
+            <div class="song-meta"><span class="song-artist">${esc(song.artist)}</span>${lastTag}</div>
+          </div>
+        </div>
+        <div class="pills-row">
+          <span class="pill ${pc(song.difficulty)}">${cap(song.difficulty)}</span>
+          <span class="pill ${pc(s)}">${slabel(s)}</span>
+          ${runsPill}${starPill}
+        </div>
+        <div class="rehearsed-row">${rehearsedBtnHTML(song.number)}</div>
+        ${notesBoxHTML(song)}
+        <div class="links-grid">
+          <a class="lnk yt" href="${lnk.youtube}" target="_blank" rel="noopener">YouTube</a>
+          <a class="lnk kr" href="${lnk.karaoke}" target="_blank" rel="noopener">Karaoke</a>
+          <a class="lnk sp" href="${lnk.spotify}" target="_blank" rel="noopener">Spotify</a>
+          <a class="lnk ly" href="${lnk.lyrics}"  target="_blank" rel="noopener">Paroles</a>
+        </div>
+        <div><span class="status-lbl">Mark progress</span>
+          <div class="status-controls">${['not worked','to work','ready'].map(o=>`<button class="sbtn${s===o?' active':''}" type="button" data-song-number="${song.number}" data-status="${o}">${slabel(o)}</button>`).join('')}</div>
+        </div>
+      </article>`);
+    if(pauseAfterNumbers.has(song.number))parts.push(`<div class="pause-div"><span class="pause-chip">☕ Pause · water break</span></div>`);
+  });
+  songsGrid.innerHTML=parts.join('');
+  attachNotesEditing(songsGrid);
+}
+
+function renderPracticePlayer(animateRun=false){
+  const song=getSelected();if(!song){practicePlayer.innerHTML='';return}
+  const s=getSongStatus(song),lnk=getLinks(song),list=getPracticeList();
+  const idx=list.findIndex(x=>x.number===song.number),hasPrev=idx>0,hasNext=idx>-1&&idx<list.length-1;
+  const pClass=s==='ready'?'pr-ready':s==='to work'?'pr-work':'pr-idle';
+  const runs=getRuns(song.number),rating=getRating(song.number);
+  const ytId=getYouTubeId(lnk.youtube),krId=getYouTubeId(lnk.karaoke),spId=getSpotifyId(lnk.spotify);
+  const ytBtn=`<button class="lnk yt${activeEmbed==='youtube'?' embed-on':''}" type="button" data-embed-toggle="youtube">▶ YouTube</button>`;
+  const krBtn=`<button class="lnk kr${activeEmbed==='karaoke'?' embed-on':''}" type="button" data-embed-toggle="karaoke">🎤 Karaoke</button>`;
+  const spBtn=`<button class="lnk sp${activeEmbed==='spotify'?' embed-on':''}" type="button" data-embed-toggle="spotify">♫ Spotify</button>`;
+
+  practicePlayer.innerHTML=`
+    <div class="player-card ${pClass}">
+      <div class="player-wm">${song.number}</div>
+      <div class="player-inner">
+        <div class="player-top-bar">
+          <div class="player-now"><span class="pulse-dot"></span>Now Practicing</div>
+          <div class="player-right-bar">
+            ${shuffleMode?'<span style="font-size:.75rem;color:var(--idle-text);font-weight:600">🔀 Shuffle</span>':''}
+            <span class="player-counter">Song ${idx+1} of ${list.length}</span>
+          </div>
+        </div>
+        <div class="player-top">
+          <div class="player-num">#${song.number}</div>
+          <div class="player-tw"><h2 class="player-title">${esc(song.title)}</h2><p class="player-artist">${esc(song.artist)}</p></div>
+        </div>
+        <div class="player-pills">
+          <span class="pill ${pc(song.difficulty)}">${cap(song.difficulty)}</span>
+          <span class="pill ${pc(s)}">${slabel(s)}</span>
+          ${runs.today>0?`<span class="pill p-runs">${runs.today}× today · ${runs.total} total</span>`:''}
+          ${rating>0?`<span class="pill p-stars">${starStr(rating)}</span>`:''}
+        </div>
+        <div class="player-rehearsed">
+          <span class="status-lbl">Rehearsed</span>
+          ${rehearsedBtnHTML(song.number,true)}
+        </div>
+        ${notesBoxHTML(song,'player-notes')}
+        <div class="links-grid player-links">
+          ${ytBtn}
+          ${krBtn}
+          ${spBtn}
+          <a class="lnk ly" href="${lnk.lyrics}"  target="_blank" rel="noopener">Paroles</a>
+        </div>
+        ${renderEmbedSection(song,lnk,ytId,krId,spId)}
+        <div class="run-section">
+          <span class="status-lbl">Log a run · or press Space</span>
+          <button class="run-btn${animateRun?' bounce':''}" type="button" data-add-run="${song.number}">
+            <span class="run-top-label">Runs today</span>
+            <span class="run-num">${runs.today}</span>
+            <span class="run-sub">${runs.total} all time · tap to add</span>
+          </button>
+          ${runs.today>0?`<button class="run-undo-btn" type="button" data-remove-run="${song.number}">− undo last run</button>`:''}
+        </div>
+        <div class="mastery-section">
+          <div class="mastery-header">
+            <span class="mastery-lbl">★ Mastery — how well do you know it?</span>
+            ${rating?`<span class="mastery-level">${MASTERY_LABELS[rating]}</span>`:''}
+          </div>
+          <div class="stars-row" data-rate-song="${song.number}">
+            ${[1,2,3,4,5].map(n=>`<button class="star-btn${rating>=n?' on':''}" type="button" data-rate="${n}" title="${MASTERY_LABELS[n]}">★</button>`).join('')}
+          </div>
+        </div>
+        <div class="player-status"><span class="status-lbl">Mark progress</span>
+          <div class="status-controls">${['not worked','to work','ready'].map(o=>`<button class="sbtn${s===o?' active':''}" type="button" data-song-number="${song.number}" data-status="${o}">${slabel(o)}</button>`).join('')}</div>
+        </div>
+        <div class="player-nav">
+          <button class="mbtn" type="button" data-player-nav="previous" ${hasPrev?'':'disabled'}>← Prev</button>
+          <button class="mbtn" type="button" data-player-nav="back">↩ Exit</button>
+          <button class="mbtn" type="button" data-player-nav="next" ${hasNext?'':'disabled'}>Next →</button>
+        </div>
+      </div>
+    </div>`;
+  attachNotesEditing(practicePlayer);
+}
+
+function render(){
+  document.body.classList.toggle('pm',practiceMode);
+  practiceModeToggle.classList.toggle('active',practiceMode);
+  practiceModeToggle.setAttribute('aria-pressed',String(practiceMode));
+  practiceModeToggle.textContent=practiceMode?'↩  Back to list':'▶\u00A0 Practice Player';
+  renderProgress();renderEnergyArc();renderSongs();renderPracticePlayer();renderPracticePanel();updateSessionBar();syncPracticeUI();
+}
+
+// EVENTS
+searchInput.addEventListener('input',e=>{searchTerm=e.target.value;renderSongs()});
+filterGroup.addEventListener('click',e=>{
+  const btn=e.target.closest('.fbtn');if(!btn)return;
+  activeFilter=btn.dataset.filter;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b===btn));
+  renderSongs();
+});
+practiceModeToggle.addEventListener('click',()=>{if(practiceMode){closePractice();return}const first=getPracticeList()[0];if(first)openPractice(first.number)});
+shuffleBtn.addEventListener('click',()=>{
+  shuffleMode=!shuffleMode;
+  if(shuffleMode){shuffleOrder=generateShuffleOrder();if(!shuffleOrder.includes(selectedSongNumber))selectedSongNumber=shuffleOrder[0]}
+  shuffleBtn.classList.toggle('shuf-on',shuffleMode);shuffleBtn.textContent=shuffleMode?'🔀 On':'🔀 Shuffle';
+  if(practiceMode)renderPracticePlayer();
+});
+energyArcEl.addEventListener('click',e=>{const bar=e.target.closest('[data-open-song]');if(bar)openPractice(Number(bar.dataset.openSong))});
+songsGrid.addEventListener('click',e=>{
+  if(e.target.closest('[contenteditable="true"]'))return;
+  const rehearseBtn=e.target.closest('[data-toggle-rehearsed]');if(rehearseBtn){toggleRehearsed(Number(rehearseBtn.dataset.toggleRehearsed));return}
+  const sb=e.target.closest('.sbtn');if(sb){setSongStatus(Number(sb.dataset.songNumber),sb.dataset.status);return}
+  if(e.target.closest('a,button,input,label'))return;
+  const card=e.target.closest('[data-open-song]');if(card)openPractice(Number(card.dataset.openSong));
+});
+practicePlayer.addEventListener('click',e=>{
+  if(e.target.closest('[contenteditable="true"]'))return;
+  const rehearseBtn=e.target.closest('[data-toggle-rehearsed]');if(rehearseBtn){toggleRehearsed(Number(rehearseBtn.dataset.toggleRehearsed));return}
+  // Embed toggles
+  const eToggle=e.target.closest('[data-embed-toggle]');if(eToggle){const t=eToggle.dataset.embedToggle;activeEmbed=activeEmbed===t?null:t;renderPracticePlayer();return}
+  const eClose=e.target.closest('[data-close-embed]');if(eClose){activeEmbed=null;renderPracticePlayer();return}
+  // Run counter
+  const runAdd=e.target.closest('[data-add-run]');if(runAdd){addRun(Number(runAdd.dataset.addRun));return}
+  const runRm=e.target.closest('[data-remove-run]');if(runRm){removeRun(Number(runRm.dataset.removeRun));return}
+  // Mastery stars
+  const star=e.target.closest('.star-btn');
+  if(star){const row=star.closest('[data-rate-song]');if(row){setRating(Number(row.dataset.rateSong),Number(star.dataset.rate));return}}
+  // Status
+  const sb=e.target.closest('.sbtn');if(sb){setSongStatus(Number(sb.dataset.songNumber),sb.dataset.status);return}
+  // Navigation
+  const nav=e.target.closest('[data-player-nav]');if(!nav)return;
+  const a=nav.dataset.playerNav;
+  if(a==='back'){closePractice();return}if(a==='previous'){navOffset(-1);return}if(a==='next')navOffset(1);
+});
+document.addEventListener('keydown',e=>{
+  if(!practiceMode)return;
+  if(document.querySelector('[contenteditable="true"]'))return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();navOffset(1)}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();navOffset(-1)}
+  if(e.key==='Escape')closePractice();
+  if(e.key===' '){const ae=document.activeElement;if(ae&&(ae.tagName==='BUTTON'||ae.tagName==='A'))return;e.preventDefault();const s=getSelected();if(s)addRun(s.number)}
+});
+sessionStartBtn.addEventListener('click',startPracticeSession);
+sessionPauseBtn.addEventListener('click',pausePracticeSession);
+sessionResumeBtn.addEventListener('click',resumePracticeSession);
+sessionStopBtn.addEventListener('click',stopPracticeSession);
+setInterval(syncPracticeUI,1000);
+
+render();
+</script>
+</body>
+</html>
