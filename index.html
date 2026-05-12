@@ -398,10 +398,8 @@ body.pm .page{max-width:820px}
     </label>
     <div class="filter-group" id="filterGroup">
       <button class="fbtn active" type="button" data-filter="all">All</button>
-      <button class="fbtn" type="button" data-filter="easy">Easy</button>
-      <button class="fbtn" type="button" data-filter="medium">Medium</button>
-      <button class="fbtn" type="button" data-filter="hard">Hard</button>
       <button class="fbtn" type="button" data-filter="not worked">Not worked</button>
+      <button class="fbtn" type="button" data-filter="to work">To work</button>
       <button class="fbtn" type="button" data-filter="ready">Ready ✓</button>
       <button class="fbtn" type="button" data-filter="due">⚠ Due</button>
       <div class="filter-sep"></div>
@@ -791,7 +789,7 @@ function matchFilter(song,f){
   if(f==='all')return true;
   if(f==='due')return isDue(song);
   if(f.startsWith('stars-')){return getRating(song.number)===Number(f.split('-')[1])}
-  const s=getSongStatus(song);return song.difficulty===f||s===f;
+  return getSongStatus(song)===f;
 }
 function getVisible(){
   const t=norm(searchTerm.trim());
