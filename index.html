@@ -650,8 +650,7 @@ function renderPracticePanel(){
       <div class="practice-stat"><span>Current session</span><strong id="practiceCurrent">00h00</strong></div>
       <div class="practice-stat"><span>Today</span><strong id="practiceToday">00h00</strong></div>
       <div class="practice-stat"><span>Total</span><strong id="practiceTotal">00h00</strong></div>
-      <div class="practice-stat"><span>Site opens</span><strong id="practiceOpens">0</strong></div>
-      <div class="practice-stat full"><span>First opened</span><strong id="practiceFirstOpened">--.--.----</strong></div>
+      <div class="practice-stat"><span>First opened</span><strong id="practiceFirstOpened">--.--.----</strong></div>
     </div>
     <div class="practice-history">
       <div class="practice-history-title">Last 7 days</div>
@@ -668,11 +667,10 @@ function renderPracticePanel(){
   updatePracticePanel();
 }
 function updatePracticePanel(){
-  const currentEl=$('practiceCurrent'),todayEl=$('practiceToday'),totalEl=$('practiceTotal'),opensEl=$('practiceOpens'),firstOpenedEl=$('practiceFirstOpened'),historyEl=$('practiceHistoryList');
+  const currentEl=$('practiceCurrent'),todayEl=$('practiceToday'),totalEl=$('practiceTotal'),firstOpenedEl=$('practiceFirstOpened'),historyEl=$('practiceHistoryList');
   if(currentEl)currentEl.textContent=formatPracticeTime(getCurrentSessionElapsedMs());
   if(todayEl)todayEl.textContent=formatPracticeTime(getDisplayTodayPracticeMs());
   if(totalEl)totalEl.textContent=formatPracticeTime(getDisplayTotalPracticeMs());
-  if(opensEl)opensEl.textContent=String(practiceStats.siteOpens||0);
   if(firstOpenedEl)firstOpenedEl.textContent=formatDayLabel(practiceStats.firstOpened);
   const badgeEl=practicePanel.querySelector('.practice-badge');
   if(badgeEl)badgeEl.textContent=sessionStateLabel();
