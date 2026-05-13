@@ -318,6 +318,19 @@ body.pm .page{max-width:820px}
 .player-now{display:inline-flex;align-items:center;gap:.5rem;padding:.42rem .92rem;border-radius:var(--rp);background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,248,235,.74);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .player-right-bar{display:flex;align-items:center;gap:.75rem}
 .player-counter{color:var(--faint);font-size:.82rem}
+.player-session-strip{display:flex;align-items:center;justify-content:space-between;gap:.9rem;flex-wrap:wrap;margin-bottom:1rem;padding:.78rem .95rem;border-radius:16px;background:rgba(255,255,255,.038);border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.player-session-strip[data-session-state="running"]{border-color:rgba(77,184,112,.18);background:linear-gradient(135deg,rgba(32,75,48,.18),rgba(255,255,255,.03))}
+.player-session-strip[data-session-state="paused"]{border-color:rgba(200,128,48,.18);background:linear-gradient(135deg,rgba(82,54,14,.18),rgba(255,255,255,.03))}
+.player-session-meta{display:grid;gap:.14rem}
+.player-session-state{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.player-session-time{font-family:var(--fd);font-size:1.5rem;font-weight:600;line-height:1;color:rgba(255,248,235,.95)}
+.player-session-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.session-mini{min-height:38px;padding:.5rem .88rem;font-size:.8rem;font-weight:700;letter-spacing:.02em}
+.session-mini[hidden]{display:none}
+.session-mini-pause{background:rgba(212,144,80,.14);border-color:rgba(212,144,80,.2);color:#ffe7cf}
+.session-mini-resume{background:rgba(90,152,220,.14);border-color:rgba(90,152,220,.2);color:#e4f1ff}
+.session-mini-stop{background:rgba(200,80,96,.14);border-color:rgba(200,80,96,.2);color:#ffe3e6}
+.session-mini[disabled]{opacity:.38;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 
 .player-top{display:flex;gap:1.1rem;align-items:flex-start;margin-bottom:1rem}
 .player-num{flex:0 0 60px;height:60px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,rgba(50,80,110,.5),rgba(90,68,44,.42));font-family:var(--fd);font-size:1.15rem;font-weight:600;border:1px solid rgba(255,255,255,.08);box-shadow:var(--sh1);color:rgba(255,255,255,.85)}
@@ -400,7 +413,7 @@ body.pm .page{max-width:820px}
   .page{width:calc(100% - 1rem)}.hero{padding-top:.75rem}.hero-inner{padding:1.2rem}
   h1{font-size:1.9rem}.stats-row{grid-template-columns:repeat(2,minmax(0,1fr))}.practice-grid{grid-template-columns:1fr}
   .links-grid,.player-links,.status-controls{grid-template-columns:1fr}
-  .player-top{flex-direction:column}.player-nav{flex-direction:column}.player-workbench{grid-template-columns:1fr}
+  .player-top{flex-direction:column}.player-nav{flex-direction:column}.player-workbench{grid-template-columns:1fr}.player-session-strip{align-items:flex-start}
   .focused-top{flex-direction:column}
   .focused-num{width:56px}
   .player-nav .mbtn[data-player-nav="previous"],.player-nav .mbtn[data-player-nav="next"]{width:100%;min-height:60px}
@@ -690,6 +703,21 @@ function updatePracticeControls(){
   sessionResumeBtn.setAttribute('aria-disabled',String(sessionResumeBtn.disabled));
   sessionStopBtn.setAttribute('aria-disabled',String(sessionStopBtn.disabled));
 }
+function syncPracticePlayerSessionUI(){
+  const strip=practicePlayer.querySelector('[data-player-session-strip]');
+  if(!strip)return;
+  const state=getPracticeSessionStatus(),sessionMs=getCurrentSessionElapsedMs(),hasElapsed=sessionMs>0;
+  const stateEl=$('playerSessionState'),timeEl=$('playerSessionTimer');
+  const pauseBtn=practicePlayer.querySelector('[data-player-session="pause"]');
+  const resumeBtn=practicePlayer.querySelector('[data-player-session="resume"]');
+  const stopBtn=practicePlayer.querySelector('[data-player-session="stop"]');
+  strip.dataset.sessionState=state;
+  if(stateEl)stateEl.textContent=state==='running'?'Session running':state==='paused'?'Session paused':'Session idle';
+  if(timeEl)timeEl.textContent=formatPracticeTime(sessionMs);
+  if(pauseBtn){pauseBtn.hidden=state!=='running';pauseBtn.disabled=state!=='running'}
+  if(resumeBtn){resumeBtn.hidden=state!=='paused'||!hasElapsed;resumeBtn.disabled=state!=='paused'||!hasElapsed}
+  if(stopBtn){stopBtn.disabled=state==='idle'&&!hasElapsed}
+}
 function syncPracticeUI(){
   const sessionMs=getCurrentSessionElapsedMs(),mins=Math.floor(sessionMs/60000),state=getPracticeSessionStatus();
   sessionTimerEl.textContent=formatPracticeTime(sessionMs);
@@ -698,6 +726,7 @@ function syncPracticeUI(){
   else{sessionTimerEl.className='timer-disp';breakAlertEl.style.display='none'}
   updatePracticeControls();
   updatePracticePanel();
+  syncPracticePlayerSessionUI();
 }
 function startPracticeSession(){
   practiceStats.currentSession={status:'running',elapsedMs:0,startedAt:Date.now()};
@@ -961,7 +990,12 @@ function scrollPracticeIntoView(behavior='smooth'){
 function getSelected(){return getSongByNum(selectedSongNumber)||songs[0]||null}
 function openFocusedSong(n){focusedSongNumber=n;renderFocusedOverlay()}
 function closeFocusedSong(){focusedSongNumber=null;renderFocusedOverlay()}
-function openPractice(n){selectedSongNumber=n;activeEmbed=null;practiceMode=true;focusedSongNumber=null;if(!savedLast[n]){savedLast[n]=new Date().toISOString();save(SK.last,savedLast)}render();scrollPracticeIntoView()}
+function openPractice(n){
+  if(getPracticeSessionStatus()==='idle'&&getCurrentSessionElapsedMs()<=0)startPracticeSession();
+  selectedSongNumber=n;activeEmbed=null;practiceMode=true;focusedSongNumber=null;
+  if(!savedLast[n]){savedLast[n]=new Date().toISOString();save(SK.last,savedLast)}
+  render();scrollPracticeIntoView();
+}
 function closePractice(){practiceMode=false;activeEmbed=null;render();window.scrollTo({top:0,behavior:'smooth'})}
 function navOffset(off){
   activeEmbed=null;const list=getPracticeList(),idx=list.findIndex(s=>s.number===selectedSongNumber);
@@ -1046,6 +1080,7 @@ function renderPracticePlayer(animateRun=false){
   const ratingPill=rating>0?`<span class="pill p-stars">${rating}★</span>`:'<span class="pill p-runs">Unrated</span>';
   const rehearsedPill=rehearsed?'<span class="pill p-ready">Rehearsed</span>':'';
   const lockBanner=mindsetLock?`<div class="player-lock-banner"><div class="mindset-lock-badge">Mindset Lock</div><div class="player-lock-copy">Locked for performance.</div></div>`:'';
+  const sessionState=getPracticeSessionStatus(),sessionMs=getCurrentSessionElapsedMs(),hasElapsed=sessionMs>0;
   const ytId=getYouTubeId(lnk.youtube),krId=getYouTubeId(lnk.karaoke),spId=getSpotifyId(lnk.spotify);
   const ytBtn=`<button class="lnk yt${activeEmbed==='youtube'?' embed-on':''}" type="button" data-embed-toggle="youtube">▶ YouTube</button>`;
   const krBtn=`<button class="lnk kr${activeEmbed==='karaoke'?' embed-on':''}" type="button" data-embed-toggle="karaoke">🎤 Karaoke</button>`;
@@ -1060,6 +1095,17 @@ function renderPracticePlayer(animateRun=false){
           <div class="player-right-bar">
             ${shuffleMode?'<span style="font-size:.75rem;color:var(--idle-text);font-weight:600">🔀 Shuffle</span>':''}
             <span class="player-counter">Song ${idx+1} of ${list.length}</span>
+          </div>
+        </div>
+        <div class="player-session-strip" data-player-session-strip data-session-state="${sessionState}">
+          <div class="player-session-meta">
+            <span class="player-session-state" id="playerSessionState">${sessionState==='running'?'Session running':sessionState==='paused'?'Session paused':'Session idle'}</span>
+            <strong class="player-session-time" id="playerSessionTimer">${formatPracticeTime(sessionMs)}</strong>
+          </div>
+          <div class="player-session-controls">
+            <button class="session-mini session-mini-pause" type="button" data-player-session="pause" ${sessionState==='running'?'':'hidden disabled'}>Pause</button>
+            <button class="session-mini session-mini-resume" type="button" data-player-session="resume" ${sessionState==='paused'&&hasElapsed?'':'hidden disabled'}>Resume</button>
+            <button class="session-mini session-mini-stop" type="button" data-player-session="stop" ${sessionState==='idle'&&!hasElapsed?'disabled':''}>Stop Session</button>
           </div>
         </div>
         <div class="player-top">
@@ -1110,6 +1156,7 @@ function renderPracticePlayer(animateRun=false){
       </div>
     </div>`;
   attachNotesEditing(practicePlayer);
+  syncPracticePlayerSessionUI();
 }
 
 function renderFocusedOverlay(){
@@ -1225,6 +1272,13 @@ focusedOverlay.addEventListener('click',e=>{
 });
 practicePlayer.addEventListener('click',e=>{
   if(e.target.closest('[contenteditable="true"]'))return;
+  const sessionBtn=e.target.closest('[data-player-session]');
+  if(sessionBtn){
+    const action=sessionBtn.dataset.playerSession;
+    if(action==='pause'){pausePracticeSession();return}
+    if(action==='resume'){resumePracticeSession();return}
+    if(action==='stop'){stopPracticeSession();return}
+  }
   const rehearseBtn=e.target.closest('[data-toggle-rehearsed]');if(rehearseBtn){toggleRehearsed(Number(rehearseBtn.dataset.toggleRehearsed));return}
   // Embed toggles
   const eToggle=e.target.closest('[data-embed-toggle]');if(eToggle){const t=eToggle.dataset.embedToggle;activeEmbed=activeEmbed===t?null:t;renderPracticePlayer();return}
